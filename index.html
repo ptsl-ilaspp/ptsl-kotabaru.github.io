@@ -1,0 +1,562 @@
+<!doctype html>
+<html lang="id" data-bs-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#1f6fd1">
+<title>Monitoring PTSL Kab. Kotabaru</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap">
+<style>
+:root, [data-bs-theme="light"] {
+  --biru: #1f6fd1; --biru-tua: #1858a8; --biru-muda: #e8f1fc;
+  --hijau: #1e9e6a; --kuning: #e0a100; --merah: #d64545; --abu: #8a94a3;
+  --latar: #eef1f5; --kartu: #ffffff; --garis: #e3e7ed; --teks: #2b3442; --teks2: #6b7685;
+  --side: #ffffff; --side-aktif: #e8f1fc;
+  --bs-body-font-family: "Source Sans 3", system-ui, sans-serif;
+  --bs-body-color: var(--teks); --bs-body-bg: var(--latar);
+  --bs-primary: #1f6fd1; --bs-primary-rgb: 31,111,209; --bs-link-color-rgb: 31,111,209;
+}
+[data-bs-theme="dark"] {
+  --biru: #4c93e8; --biru-tua: #1b4f8f; --biru-muda: #1c2b40;
+  --hijau: #3cc28a; --kuning: #f0b72f; --merah: #ef6b6b; --abu: #7d8796;
+  --latar: #141920; --kartu: #1c232c; --garis: #2b3440; --teks: #dde3ea; --teks2: #98a3b1;
+  --side: #19202a; --side-aktif: #1f3047;
+  --bs-body-color: var(--teks); --bs-body-bg: var(--latar);
+  --bs-primary: #4c93e8; --bs-primary-rgb: 76,147,232; --bs-link-color-rgb: 120,175,240;
+}
+html { background: var(--latar); min-height: 100%; }
+body { background: var(--latar); color: var(--teks); font-size: 15px; font-variant-numeric: tabular-nums; min-height: 100vh; }
+@media (max-width: 575.98px) {
+  .kartu > .kh .ket, .tbl .hp-sembunyi { display: none; }
+  .kartu > .kb { padding: 12px 14px; }
+  .topbar { padding: 0 4px; gap: 0; }
+  .topbar .ib { width: 36px; }
+  .topbar .brand { font-size: 16px; margin: 0 4px; }
+  .topbar .btn-muat { padding: 4px 8px; }
+  .kpi { padding: 10px; gap: 10px; flex-direction: column; align-items: flex-start; }
+  .kpi .ic { width: 34px; height: 34px; font-size: 17px; }
+  .kpi .v { font-size: 21px; }
+}
+body { overflow-x: hidden; }
+a { text-decoration: none; }
+:focus-visible { outline: 2px solid var(--biru); outline-offset: 2px; }
+
+/* navbar */
+.topbar { position: fixed; inset: 0 0 auto 0; height: 56px; z-index: 1030; display: flex; align-items: center; gap: 4px;
+  padding: 0 10px; background: var(--biru); color: #fff; box-shadow: 0 1px 0 rgba(0,0,0,.08); }
+[data-bs-theme="dark"] .topbar { background: #16304f; }
+.topbar .ib { background: none; border: 0; color: #fff; width: 40px; height: 40px; border-radius: 6px; position: relative; font-size: 19px; }
+.topbar .ib:hover { background: rgba(255,255,255,.14); }
+.topbar .brand { font-weight: 700; font-size: 17px; margin: 0 10px 0 4px; white-space: nowrap; }
+.topbar .brand small { font-weight: 400; opacity: .8; margin-left: 6px; }
+.topbar .upd { font-size: 13px; opacity: .85; margin-right: 6px; white-space: nowrap; }
+.topbar .bdg { position: absolute; top: 3px; right: 2px; min-width: 17px; height: 17px; padding: 0 4px; border-radius: 9px;
+  font-size: 11px; line-height: 17px; font-weight: 700; background: var(--merah); color: #fff; }
+.topbar .bdg.ok { background: var(--hijau); }
+.topbar .btn-muat { color: #fff; border: 1px solid rgba(255,255,255,.5); font-size: 14px; padding: 5px 12px; margin-left: 4px; }
+.topbar .btn-muat:hover { background: rgba(255,255,255,.14); color: #fff; }
+
+/* sidebar */
+.side { position: fixed; top: 56px; bottom: 0; left: 0; width: 244px; z-index: 1020; background: var(--side);
+  border-right: 1px solid var(--garis); overflow-y: auto; transition: transform .2s ease; }
+.side .user { padding: 18px 18px 14px; border-bottom: 1px solid var(--garis); display: flex; gap: 10px; align-items: center; }
+.side .ava { width: 38px; height: 38px; border-radius: 50%; background: var(--biru-muda); color: var(--biru); display: grid; place-items: center; font-weight: 700; }
+.side .user b { display: block; font-size: 15px; }
+.side .user button { background: none; border: 0; padding: 0; color: var(--teks2); font-size: 13px; }
+.side .grp { font-size: 12.5px; color: var(--teks2); padding: 16px 18px 6px; }
+.side .mi { display: flex; align-items: center; gap: 11px; width: 100%; padding: 9px 18px; border: 0; background: none;
+  color: var(--teks); font-size: 15px; text-align: left; border-left: 3px solid transparent; }
+.side .mi i.bi { font-size: 16px; width: 18px; color: var(--teks2); }
+.side .mi:hover { background: var(--side-aktif); }
+.side .mi.on { background: var(--side-aktif); border-left-color: var(--biru); color: var(--biru); font-weight: 600; }
+.side .mi.on i.bi { color: var(--biru); }
+.side .mi .n { margin-left: auto; font-size: 12px; font-weight: 700; padding: 1px 7px; border-radius: 9px; background: var(--merah); color: #fff; }
+.side .mi .chev { margin-left: auto; font-size: 12px; transition: transform .2s; }
+.side .mi[aria-expanded="true"] .chev { transform: rotate(90deg); }
+.side .sub .mi { padding-left: 47px; font-size: 14.5px; }
+.backdrop { display: none; position: fixed; inset: 56px 0 0 0; background: rgba(0,0,0,.35); z-index: 1015; }
+
+.main { margin-left: 244px; padding: 76px 24px 40px; transition: margin .2s ease; }
+body.side-off .side { transform: translateX(-100%); }
+body.side-off .main { margin-left: 0; }
+@media (max-width: 991.98px) {
+  .side { transform: translateX(-100%); }
+  .main { margin-left: 0; padding: 72px 14px 32px; }
+  body.side-on .side { transform: none; }
+  body.side-on .backdrop { display: block; }
+  .topbar .upd, .topbar .brand small { display: none; }
+}
+@media (max-width: 575.98px) { .topbar .btn-muat span { display: none; } }
+
+.pagehead h1 { font-size: 25px; font-weight: 600; margin: 0 0 4px; }
+.breadcrumb { font-size: 14px; margin-bottom: 18px; --bs-breadcrumb-divider-color: var(--teks2); }
+.breadcrumb a { color: var(--biru); cursor: pointer; }
+.breadcrumb .active { color: var(--teks2); }
+
+/* kartu */
+.kartu { background: var(--kartu); border: 1px solid var(--garis); border-radius: 4px; margin-bottom: 22px; }
+.kartu > .kh { display: flex; align-items: center; gap: 8px; padding: 13px 18px; border-bottom: 1px solid var(--garis); }
+.kartu > .kh h2 { font-size: 16.5px; font-weight: 600; margin: 0; }
+.kartu > .kh .ket { color: var(--teks2); font-size: 13.5px; }
+.kartu > .kh .tl { margin-left: auto; display: flex; gap: 2px; }
+.kartu > .kh .tl button { background: none; border: 0; color: var(--teks2); width: 28px; height: 28px; border-radius: 4px; }
+.kartu > .kh .tl button:hover { background: var(--latar); }
+.kartu > .kb { padding: 16px 18px; }
+.kartu.lipat > .kb { display: none; }
+.kartu.lipat .bi-chevron-down { transform: rotate(-90deg); display: inline-block; }
+
+/* kpi */
+.kpi { background: var(--kartu); border: 1px solid var(--garis); border-radius: 4px; padding: 14px 16px; height: 100%;
+  display: flex; gap: 14px; align-items: center; }
+.kpi .ic { width: 46px; height: 46px; border-radius: 4px; display: grid; place-items: center; font-size: 22px; color: #fff; flex: none; }
+.kpi .v { font-size: 25px; font-weight: 700; line-height: 1.1; }
+.kpi .l { font-size: 14px; color: var(--teks2); }
+.kpi .s { font-size: 13px; color: var(--teks2); }
+
+/* jalur tahapan: patok di garis ukur */
+.jalur-wrap { overflow-x: auto; padding-bottom: 4px; }
+.jalur { display: grid; grid-template-columns: repeat(12, minmax(88px, 1fr)); position: relative; min-width: 1056px; }
+.jalur::before { content: ""; position: absolute; left: 4%; right: 4%; top: 49px; border-top: 2px dashed var(--garis); }
+.patok { text-align: center; position: relative; padding: 0 4px; }
+.patok .c { font-size: 24px; font-weight: 700; line-height: 1; }
+.patok .c small { font-size: 14px; font-weight: 400; color: var(--teks2); }
+.patok .t { width: 16px; height: 16px; margin: 12px auto 10px; transform: rotate(45deg); border: 2px solid var(--abu); background: var(--kartu); position: relative; z-index: 1; }
+.patok.full .t { background: var(--hijau); border-color: var(--hijau); }
+.patok.part .t { background: linear-gradient(135deg, var(--kuning) 50%, var(--kartu) 50%); border-color: var(--kuning); }
+.patok .n { font-size: 14px; font-weight: 600; }
+.patok .b { font-size: 13px; color: var(--teks2); }
+.patok .bar { height: 4px; background: var(--garis); border-radius: 2px; margin: 6px 10px 0; overflow: hidden; }
+.patok .bar i { display: block; height: 100%; background: var(--biru); }
+
+/* bar & tabel */
+.pb { height: 7px; background: var(--garis); border-radius: 4px; overflow: hidden; min-width: 70px; }
+.pb i { display: block; height: 100%; background: var(--biru); border-radius: 4px; }
+.pb.hijau i { background: var(--hijau); }
+.tbl { width: 100%; font-size: 14.5px; }
+.tbl th { font-weight: 600; color: var(--teks2); font-size: 13.5px; padding: 8px 10px; border-bottom: 1px solid var(--garis); white-space: nowrap; }
+.tbl td { padding: 9px 10px; border-bottom: 1px solid var(--garis); vertical-align: middle; }
+.tbl tr:last-child td { border-bottom: 0; }
+.tbl tbody tr.klik { cursor: pointer; }
+.tbl tbody tr.klik:hover td { background: var(--biru-muda); }
+.tbl .num { text-align: right; white-space: nowrap; }
+.tbl .grp td { background: var(--latar); font-weight: 600; font-size: 13.5px; color: var(--teks2); }
+.nama-desa { font-weight: 600; color: var(--biru); }
+.redup { color: var(--teks2); }
+.table-wrap { overflow-x: auto; }
+
+/* titik tahapan */
+.td-tahap { display: inline-flex; gap: 3px; }
+.td-tahap span { width: 12px; height: 12px; border-radius: 2px; background: var(--garis); }
+.td-tahap span.ok { background: var(--hijau); }
+.td-tahap span.part { background: var(--kuning); }
+.legenda { display: flex; flex-wrap: wrap; gap: 14px; font-size: 13.5px; color: var(--teks2); }
+.legenda span::before { content: ""; display: inline-block; width: 11px; height: 11px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; background: var(--garis); }
+.legenda .ok::before { background: var(--hijau); }
+.legenda .part::before { background: var(--kuning); }
+
+/* tindak lanjut */
+.tl-item { display: flex; gap: 12px; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid var(--garis); cursor: pointer; }
+.tl-item:last-child { border-bottom: 0; }
+.tl-item .dot { width: 9px; height: 9px; border-radius: 50%; margin-top: 7px; flex: none; }
+.tl-item b { font-weight: 600; }
+.lv-danger { background: var(--merah); } .lv-warn { background: var(--kuning); } .lv-info { background: var(--abu); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { border: 1px solid var(--garis); background: var(--kartu); color: var(--teks); border-radius: 16px; padding: 4px 12px; font-size: 14px; }
+.chip.on { background: var(--biru); border-color: var(--biru); color: #fff; }
+
+.kec-row { padding: 12px 0; border-bottom: 1px solid var(--garis); }
+.kec-row:last-child { border-bottom: 0; }
+.kec-row a { font-weight: 600; cursor: pointer; }
+
+.link-item { display: flex; gap: 14px; align-items: center; padding: 13px 0; border-bottom: 1px solid var(--garis); color: var(--teks); }
+.link-item:last-child { border-bottom: 0; }
+.link-item i.bi { font-size: 22px; color: var(--biru); width: 26px; }
+.link-item small { display: block; color: var(--teks2); }
+
+.form-control, .form-select { background-color: var(--kartu); border-color: var(--garis); color: var(--teks); font-size: 14.5px; }
+.modal-content { background: var(--kartu); border-color: var(--garis); }
+.modal-header, .modal-footer { border-color: var(--garis); }
+.dropdown-menu { background: var(--kartu); border-color: var(--garis); }
+.dropdown-item { color: var(--teks); }
+
+.muat { padding: 60px 0; text-align: center; color: var(--teks2); }
+.kosong { padding: 26px 0; text-align: center; color: var(--teks2); }
+.sk { background: linear-gradient(90deg, var(--garis), var(--latar), var(--garis)); background-size: 200% 100%; animation: sk 1.2s infinite; border-radius: 4px; }
+@keyframes sk { to { background-position: -200% 0; } }
+@media (prefers-reduced-motion: reduce) { .sk { animation: none; } .side, .main { transition: none; } }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <button class="ib" id="btnSide" aria-label="Buka atau tutup menu"><i class="bi bi-list"></i></button>
+  <div class="brand">PTSL Kotabaru<small>Monitoring 2026</small></div>
+  <div class="ms-auto d-flex align-items-center">
+    <span class="upd" id="upd"></span>
+    <div class="dropdown">
+      <button class="ib" data-bs-toggle="dropdown" aria-label="Pengguna online" id="btnOnline"><i class="bi bi-people"></i><span class="bdg ok" id="onlineN">1</span></button>
+      <div class="dropdown-menu dropdown-menu-end" style="min-width:220px" id="olist"></div>
+    </div>
+    <button class="ib" aria-label="Perlu tindak lanjut" onclick="go('tindak')"><i class="bi bi-bell"></i><span class="bdg" id="tlN" hidden>0</span></button>
+    <button class="ib" aria-label="Ganti tema terang atau gelap" id="btnTema"><i class="bi bi-moon"></i></button>
+    <button class="btn btn-sm btn-muat" id="btnMuat"><i class="bi bi-arrow-clockwise"></i> <span>Muat ulang</span></button>
+  </div>
+</header>
+
+<nav class="side" id="side" aria-label="Menu utama">
+  <div class="user">
+    <div class="ava" id="ava">?</div>
+    <div><b id="namaSaya">Tamu</b><button id="btnNama">Ganti nama</button></div>
+  </div>
+  <div class="grp">Menu</div>
+  <button class="mi" data-v="dash"><i class="bi bi-speedometer2"></i>Dashboard</button>
+  <button class="mi" data-v="tindak"><i class="bi bi-exclamation-triangle"></i>Perlu tindak lanjut<span class="n" id="tlN2" hidden>0</span></button>
+  <button class="mi" data-bs-toggle="collapse" data-bs-target="#subKec" aria-expanded="false"><i class="bi bi-geo-alt"></i>Kecamatan<i class="bi bi-chevron-right chev"></i></button>
+  <div class="collapse sub" id="subKec"></div>
+  <button class="mi" data-v="desa"><i class="bi bi-houses"></i>Desa</button>
+  <div class="grp">Lainnya</div>
+  <button class="mi" data-v="links"><i class="bi bi-link-45deg"></i>Tautan cepat</button>
+</nav>
+<div class="backdrop" id="backdrop"></div>
+
+<main class="main">
+  <div class="pagehead"><h1 id="judul">Dashboard</h1><ol class="breadcrumb" id="bc"></ol></div>
+  <div id="view"><div class="muat"><div class="spinner-border spinner-border-sm me-2"></div>Memuat data…</div></div>
+</main>
+
+<div class="modal fade" id="mDesa" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-scrollable"><div class="modal-content">
+    <div class="modal-header"><div><h5 class="modal-title" id="mdJudul"></h5><div class="redup" id="mdSub" style="font-size:14px"></div></div>
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button></div>
+    <div class="modal-body" id="mdBody"></div>
+    <div class="modal-footer justify-content-between">
+      <div class="legenda"><span class="ok">Selesai</span><span class="part">Sebagian</span><span>Belum</span></div>
+      <a class="btn btn-primary" id="mdLink" target="_blank" rel="noopener"><i class="bi bi-table me-1"></i>Buka spreadsheet desa</a>
+    </div>
+  </div></div>
+</div>
+
+<div class="modal fade" id="mNama" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-sm modal-dialog-centered"><div class="modal-content">
+    <div class="modal-header"><h5 class="modal-title">Nama Anda</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button></div>
+    <div class="modal-body"><p class="redup" style="font-size:14px">Nama ini terlihat oleh pengguna lain yang sedang membuka halaman ini.</p>
+      <input class="form-control" id="inNama" maxlength="40" placeholder="Contoh: Ridho - Tim Support"></div>
+    <div class="modal-footer"><button class="btn btn-primary" id="simpanNama">Simpan nama</button></div>
+  </div></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+<script>
+var API = 'https://script.google.com/macros/s/AKfycbxFpqO1F_xuOtwszBgbWXL4IODWs1fXOgch8VqJ8xYPnuWNofXuzWudWa0isSGrmrbJ/exec';
+var DATA = null, VIEW = 'dash', ARG = '', TLF = 'semua', QD = '', KD = 'semua';
+var QC_URL = 'https://drive.google.com/drive/folders/1XNFYCriJlM3mCetWh-J0BbKHKdDNm0YE';
+var LINKS = [
+  ['bi-folder2-open', 'QC Bidang Kotabaru', 'Folder hasil QC bidang di Google Drive', QC_URL],
+  ['bi-folder', 'Folder file desa', 'Semua spreadsheet desa (akses lewat email)', 'https://drive.google.com/drive/folders/1d4svN6E2Hcu8uJEpRtzmiD6lHl8q1kxu'],
+  ['bi-file-earmark-spreadsheet', 'Spreadsheet utama (Rincian)', 'Data Bidang Kab. Kotabaru', 'https://docs.google.com/spreadsheets/d/1vL3omN3ajB0mwNaF9NUBBhbn6gzyAooPGDGCFDILmJo/edit'],
+  ['bi-globe', 'Web mitra BPN (KJSKB)', 'skb.atrbpn.go.id', 'https://skb.atrbpn.go.id']
+];
+var TAHAP = [
+  ['kirim', 'Kirim Verval'], ['lolos', 'Lolos Verval'], ['pbt', 'PBT'], ['berkas', 'Entry Berkas'], ['gu', 'Berkas ke GU'],
+  ['peng', 'Pengumuman'], ['nib', 'Entry NIB'], ['kkp', 'Link KKP'], ['pbtK', 'PBT K'], ['cetakK', 'Cetak PBT K'],
+  ['pbtFix', 'PBT Fix'], ['cetakFix', 'Cetak PBT Fix']
+];
+
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+function fmt(n, d) { return Number(n || 0).toLocaleString('id-ID', { minimumFractionDigits: d || 0, maximumFractionDigits: d || 0 }); }
+function ha(m2) { return fmt(m2 / 10000, 2) + ' Ha'; }
+function pct(x) { return Math.round((x || 0) * 100) + '%'; }
+function $(id) { return document.getElementById(id); }
+
+/* status tahap satu PKJ: 2 selesai, 1 sebagian, 0 belum */
+function st(p, k) {
+  var tanda = function (v) { return v === '✔' ? 2 : (String(v || '').trim() !== '' ? 1 : 0); };
+  switch (k) {
+    case 'kirim': return p.kirim ? 2 : 0;
+    case 'lolos': return p.lolos ? 2 : 0;
+    case 'pbt': var a = String(p.noPBT || '').trim() !== '', b = !!p.pempers; return a && b ? 2 : (a || b ? 1 : 0);
+    case 'pbtK': case 'cetakK': case 'pbtFix': case 'cetakFix': return p[k] ? 2 : 0;
+    default: return tanda(p[k]);
+  }
+}
+function semuaPkj(list) { var a = []; list.forEach(function (d) { d.pkj.forEach(function (p) { a.push({ d: d, p: p }); }); }); return a; }
+function ringkas(list) {
+  var x = { n: list.length, aktif: 0, pkj: 0, b: 0, l: 0, prog: 0, pIsi: 0, pTot: 0 };
+  list.forEach(function (d) {
+    if (d.pkj.length) x.aktif++;
+    d.pkj.forEach(function (p) { x.pkj++; x.b += p.bidang; x.l += p.luas; x.prog += p.progres; });
+    x.pIsi += d.pendudukIsi; x.pTot += d.pendudukTotal;
+  });
+  x.avg = x.pkj ? x.prog / x.pkj : 0;
+  return x;
+}
+function desaDi(k) { return DATA.desa.filter(function (d) { return k === 'semua' || d.kec === k; }); }
+function kecList() { return DATA.kecamatan && DATA.kecamatan.length ? DATA.kecamatan : []; }
+
+function tindakLanjut() {
+  var out = [];
+  DATA.desa.forEach(function (d) {
+    if (d.pendudukTotal > 0 && d.pendudukIsi === 0) out.push({ lv: 'warn', jenis: 'penduduk', d: d, pkj: '', t: 'Data penduduk belum diisi', s: fmt(d.pendudukTotal) + ' bidang menunggu data penduduk' });
+    d.pkj.forEach(function (p) {
+      var info = fmt(p.bidang) + ' bidang, ' + ha(p.luas);
+      if (!p.kirim) out.push({ lv: 'info', jenis: 'kirim', d: d, pkj: p.pkj, t: 'Belum Kirim Verval', s: info });
+      else if (!p.lolos) out.push({ lv: 'warn', jenis: 'lolos', d: d, pkj: p.pkj, t: 'Menunggu Lolos Verval', s: info });
+      else if (st(p, 'pbt') < 2) {
+        var kurang = [];
+        if (!String(p.noPBT || '').trim()) kurang.push('Nomor PBT');
+        if (!p.pempers) kurang.push('ceklis Pempers');
+        out.push({ lv: 'danger', jenis: 'pbt', d: d, pkj: p.pkj, t: 'Lolos Verval, ' + kurang.join(' dan ') + ' belum ada', s: info });
+      }
+    });
+  });
+  var urut = { danger: 0, warn: 1, info: 2 };
+  return out.sort(function (a, b) { return urut[a.lv] - urut[b.lv] || a.d.nama.localeCompare(b.d.nama); });
+}
+
+/* ---------- kerangka ---------- */
+function kartu(judul, ket, isi, id) {
+  return '<section class="kartu"' + (id ? ' id="' + id + '"' : '') + '><div class="kh"><h2>' + judul + '</h2>' + (ket ? '<span class="ket">' + ket + '</span>' : '') +
+    '<div class="tl"><button aria-label="Lipat kartu" onclick="this.closest(\'.kartu\').classList.toggle(\'lipat\')"><i class="bi bi-chevron-down"></i></button></div></div>' +
+    '<div class="kb">' + isi + '</div></section>';
+}
+function kpi(ic, warna, v, l, s) {
+  return '<div class="col-6 col-xl-3"><div class="kpi"><div class="ic" style="background:' + warna + '"><i class="bi ' + ic + '"></i></div>' +
+    '<div><div class="v">' + v + '</div><div class="l">' + l + '</div>' + (s ? '<div class="s">' + s + '</div>' : '') + '</div></div></div>';
+}
+function bc(arr) {
+  $('bc').innerHTML = '<li class="breadcrumb-item"><a onclick="go(\'dash\')"><i class="bi bi-house-door"></i></a></li>' +
+    arr.map(function (a, i) {
+      return i === arr.length - 1 ? '<li class="breadcrumb-item active">' + esc(a[0]) + '</li>'
+        : '<li class="breadcrumb-item"><a onclick="go(\'' + a[1] + '\',\'' + esc(a[2] || '') + '\')">' + esc(a[0]) + '</a></li>';
+    }).join('');
+}
+
+function go(v, a) {
+  VIEW = v; ARG = a || '';
+  document.querySelectorAll('.side .mi[data-v]').forEach(function (b) {
+    b.classList.toggle('on', b.getAttribute('data-v') === v && (v !== 'kec' || b.getAttribute('data-a') === ARG));
+  });
+  document.body.classList.remove('side-on');
+  render();
+  window.scrollTo(0, 0);
+}
+
+function render() {
+  if (!DATA) return;
+  var tl = tindakLanjut();
+  [$('tlN'), $('tlN2')].forEach(function (b) { b.textContent = tl.length; b.hidden = !tl.length; });
+  var t = new Date(DATA.updated);
+  $('upd').textContent = 'Data ' + t.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+  $('subKec').innerHTML = kecList().map(function (k) {
+    return '<button class="mi" data-v="kec" data-a="' + esc(k) + '">' + esc(k.replace(/\b\w+/g, function (w) { return w.charAt(0) + w.slice(1).toLowerCase(); })) + '</button>';
+  }).join('');
+  $('subKec').querySelectorAll('.mi').forEach(function (b) {
+    b.onclick = function () { go('kec', b.getAttribute('data-a')); };
+    b.classList.toggle('on', VIEW === 'kec' && b.getAttribute('data-a') === ARG);
+  });
+  if (VIEW === 'tindak') viewTindak(tl);
+  else if (VIEW === 'kec') viewKec(ARG);
+  else if (VIEW === 'desa') viewDesa();
+  else if (VIEW === 'links') viewLinks();
+  else viewDash(tl);
+}
+
+/* ---------- dashboard ---------- */
+function jalur(list) {
+  var a = semuaPkj(list), n = a.length;
+  return '<div class="jalur-wrap"><div class="jalur">' + TAHAP.map(function (t) {
+    var ok = 0, part = 0, bid = 0;
+    a.forEach(function (x) { var s = st(x.p, t[0]); if (s === 2) { ok++; bid += x.p.bidang; } else if (s === 1) part++; });
+    var cls = n && ok === n ? 'full' : (ok || part ? 'part' : '');
+    return '<div class="patok ' + cls + '" title="' + t[1] + ': ' + ok + ' dari ' + n + ' PKJ selesai' + (part ? ', ' + part + ' sebagian' : '') + '">' +
+      '<div class="c">' + ok + '<small>/' + n + '</small></div><div class="t"></div><div class="n">' + t[1] + '</div>' +
+      '<div class="b">' + fmt(bid) + ' bidang</div><div class="bar"><i style="width:' + (n ? Math.round(ok / n * 100) : 0) + '%"></i></div></div>';
+  }).join('') + '</div></div>';
+}
+function daftarTL(tl, max) {
+  if (!tl.length) return '<div class="kosong"><i class="bi bi-check2-circle me-1"></i>Semua PKJ sedang berjalan sesuai tahap.</div>';
+  return tl.slice(0, max || tl.length).map(function (x) {
+    return '<div class="tl-item" onclick="bukaDesa(\'' + esc(x.d.nama) + '\')"><span class="dot lv-' + x.lv + '"></span><div><b>' + esc(x.d.nama) +
+      (x.pkj ? ', PKJ ' + esc(x.pkj) : '') + '</b><div>' + x.t + '</div><div class="redup" style="font-size:13.5px">' + x.s + '</div></div></div>';
+  }).join('');
+}
+function viewDash(tl) {
+  $('judul').textContent = 'Dashboard'; bc([['Dashboard']]);
+  var r = ringkas(DATA.desa);
+  var kec = kecList().map(function (k) {
+    var x = ringkas(desaDi(k));
+    return '<div class="kec-row"><div class="d-flex justify-content-between mb-1"><a onclick="go(\'kec\',\'' + esc(k) + '\')">Kec. ' + esc(k) + '</a><b>' + pct(x.avg) + '</b></div>' +
+      '<div class="pb mb-1"><i style="width:' + Math.round(x.avg * 100) + '%"></i></div>' +
+      '<div class="redup" style="font-size:13.5px">' + x.aktif + ' dari ' + x.n + ' desa berjalan, ' + fmt(x.pkj) + ' PKJ, ' + fmt(x.b) + ' bidang, ' + ha(x.l) + '</div></div>';
+  }).join('');
+  var pend = DATA.desa.filter(function (d) { return d.pendudukTotal > 0; }).map(function (d) {
+    var p = d.pendudukIsi / d.pendudukTotal;
+    return '<tr class="klik" onclick="bukaDesa(\'' + esc(d.nama) + '\')"><td class="nama-desa">' + esc(d.nama) + '</td><td class="redup hp-sembunyi">' + esc(d.kec) + '</td>' +
+      '<td style="width:40%"><div class="pb hijau"><i style="width:' + Math.round(p * 100) + '%"></i></div></td><td class="num">' + fmt(d.pendudukIsi) + ' / ' + fmt(d.pendudukTotal) + '</td></tr>';
+  }).join('');
+  $('view').innerHTML =
+    '<div class="row g-3 mb-4">' +
+      kpi('bi-grid-3x3-gap', '#1f6fd1', fmt(r.b), 'Bidang', fmt(r.pkj) + ' PKJ') +
+      kpi('bi-bounding-box', '#1e9e6a', fmt(r.l / 10000, 2), 'Hektare', fmt(r.l) + ' m²') +
+      kpi('bi-houses', '#e0a100', r.aktif + ' / ' + r.n, 'Desa berjalan', 'Desa yang sudah punya PKJ') +
+      kpi('bi-graph-up-arrow', '#7a5af5', pct(r.avg), 'Progres rata-rata', 'Data penduduk ' + (r.pTot ? pct(r.pIsi / r.pTot) : '0%')) +
+    '</div>' +
+    kartu('Jalur tahapan PTSL', 'Jumlah PKJ yang sudah selesai di tiap tahap', jalur(DATA.desa)) +
+    '<div class="row g-0 gx-lg-4"><div class="col-lg-6">' + kartu('Per kecamatan', '', kec) + '</div>' +
+    '<div class="col-lg-6">' + kartu('Perlu tindak lanjut', tl.length ? tl.length + ' item' : '', daftarTL(tl, 5) +
+      (tl.length > 5 ? '<button class="btn btn-sm btn-outline-primary mt-2" onclick="go(\'tindak\')">Lihat semua ' + tl.length + ' item</button>' : '')) + '</div></div>' +
+    kartu('Data penduduk per desa', 'Bidang yang sudah ada data penduduknya', pend ? '<div class="table-wrap"><table class="tbl"><tbody>' + pend + '</tbody></table></div>' : '<div class="kosong">Belum ada desa dengan data bidang.</div>');
+}
+
+/* ---------- tabel desa ---------- */
+function barisDesa(d, tampilKec) {
+  var x = ringkas([d]);
+  if (!d.pkj.length) {
+    return '<tr class="klik" onclick="bukaDesa(\'' + esc(d.nama) + '\')"><td class="nama-desa">' + esc(d.nama) + '</td>' + (tampilKec ? '<td class="redup">' + esc(d.kec) + '</td>' : '') +
+      '<td colspan="5" class="redup">Belum ada PKJ</td></tr>';
+  }
+  return '<tr class="klik" onclick="bukaDesa(\'' + esc(d.nama) + '\')"><td class="nama-desa">' + esc(d.nama) + '</td>' + (tampilKec ? '<td class="redup">' + esc(d.kec) + '</td>' : '') +
+    '<td class="num">' + x.pkj + '</td><td class="num">' + fmt(x.b) + '</td><td class="num">' + ha(x.l) + '</td>' +
+    '<td style="min-width:140px"><div class="d-flex align-items-center gap-2"><div class="pb flex-grow-1"><i style="width:' + Math.round(x.avg * 100) + '%"></i></div><span style="width:38px;text-align:right">' + pct(x.avg) + '</span></div></td>' +
+    '<td class="num">' + fmt(d.pendudukIsi) + ' / ' + fmt(d.pendudukTotal) + '</td></tr>';
+}
+function tabelDesa(list, tampilKec) {
+  if (!list.length) return '<div class="kosong">Tidak ada desa yang cocok dengan pencarian.</div>';
+  var head = '<thead><tr><th>Desa</th>' + (tampilKec ? '<th>Kecamatan</th>' : '') + '<th class="num">PKJ</th><th class="num">Bidang</th><th class="num">Luas</th><th>Progres</th><th class="num">Penduduk</th></tr></thead>';
+  return '<div class="table-wrap"><table class="tbl">' + head + '<tbody>' + list.map(function (d) { return barisDesa(d, tampilKec); }).join('') + '</tbody></table></div>';
+}
+function viewKec(k) {
+  $('judul').textContent = 'Kec. ' + k; bc([['Kecamatan', 'dash'], [k]]);
+  var list = desaDi(k), r = ringkas(list);
+  $('view').innerHTML =
+    '<div class="row g-3 mb-4">' +
+      kpi('bi-grid-3x3-gap', '#1f6fd1', fmt(r.b), 'Bidang', fmt(r.pkj) + ' PKJ') +
+      kpi('bi-bounding-box', '#1e9e6a', fmt(r.l / 10000, 2), 'Hektare', fmt(r.l) + ' m²') +
+      kpi('bi-houses', '#e0a100', r.aktif + ' / ' + r.n, 'Desa berjalan', '') +
+      kpi('bi-graph-up-arrow', '#7a5af5', pct(r.avg), 'Progres rata-rata', 'Data penduduk ' + (r.pTot ? pct(r.pIsi / r.pTot) : '0%')) +
+    '</div>' +
+    kartu('Jalur tahapan', 'Kec. ' + esc(k), jalur(list)) +
+    kartu('Desa', list.length + ' desa, klik untuk melihat PKJ', tabelDesa(list, false));
+}
+function viewDesa() {
+  $('judul').textContent = 'Desa'; bc([['Desa']]);
+  var opsi = '<option value="semua">Semua kecamatan</option>' + kecList().map(function (k) { return '<option' + (KD === k ? ' selected' : '') + ' value="' + esc(k) + '">Kec. ' + esc(k) + '</option>'; }).join('');
+  $('view').innerHTML = kartu('Daftar desa', 'Klik nama desa untuk melihat PKJ',
+    '<div class="row g-2 mb-3"><div class="col-md-6"><input class="form-control" id="qd" placeholder="Cari nama desa" value="' + esc(QD) + '"></div>' +
+    '<div class="col-md-4"><select class="form-select" id="kd">' + opsi + '</select></div></div><div id="tblDesa"></div>');
+  var isi = function () {
+    var q = QD.trim().toUpperCase();
+    $('tblDesa').innerHTML = tabelDesa(desaDi(KD).filter(function (d) { return !q || d.nama.indexOf(q) >= 0; }), true);
+  };
+  $('qd').oninput = function () { QD = this.value; isi(); };
+  $('kd').onchange = function () { KD = this.value; isi(); };
+  isi();
+}
+
+/* ---------- tindak lanjut ---------- */
+function viewTindak(tl) {
+  $('judul').textContent = 'Perlu tindak lanjut'; bc([['Perlu tindak lanjut']]);
+  var jenis = [['semua', 'Semua'], ['pbt', 'PBT belum lengkap'], ['lolos', 'Menunggu Lolos Verval'], ['kirim', 'Belum Kirim Verval'], ['penduduk', 'Data penduduk kosong']];
+  var hit = function (j) { return j === 'semua' ? tl.length : tl.filter(function (x) { return x.jenis === j; }).length; };
+  var list = tl.filter(function (x) { return TLF === 'semua' || x.jenis === TLF; });
+  $('view').innerHTML = kartu('Daftar tindak lanjut', 'Klik untuk membuka detail desa',
+    '<div class="chips mb-3">' + jenis.map(function (j) {
+      return '<button class="chip' + (TLF === j[0] ? ' on' : '') + '" onclick="TLF=\'' + j[0] + '\';render()">' + j[1] + ' (' + hit(j[0]) + ')</button>';
+    }).join('') + '</div>' + daftarTL(list));
+}
+
+function viewLinks() {
+  $('judul').textContent = 'Tautan cepat'; bc([['Tautan cepat']]);
+  $('view').innerHTML = kartu('Tautan cepat', '', LINKS.map(function (l) {
+    return '<a class="link-item" href="' + l[3] + '" target="_blank" rel="noopener"><i class="bi ' + l[0] + '"></i><div><b>' + l[1] + '</b><small>' + l[2] + '</small></div><i class="bi bi-box-arrow-up-right ms-auto" style="font-size:15px"></i></a>';
+  }).join(''));
+}
+
+/* ---------- detail desa ---------- */
+var modalDesa = null;
+function bukaDesa(nama) {
+  var d = DATA.desa.filter(function (x) { return x.nama === nama; })[0];
+  if (!d) return;
+  var r = ringkas([d]);
+  $('mdJudul').textContent = 'Desa ' + d.nama;
+  $('mdSub').textContent = 'Kec. ' + d.kec + (d.pkj.length ? ', ' + r.pkj + ' PKJ, ' + fmt(r.b) + ' bidang, ' + ha(r.l) : '') + ', data penduduk ' + fmt(d.pendudukIsi) + ' / ' + fmt(d.pendudukTotal);
+  $('mdLink').href = d.url;
+  if (!d.pkj.length) {
+    $('mdBody').innerHTML = '<div class="kosong">Desa ini belum punya PKJ. Data bidang diisi di spreadsheet desa.</div>';
+  } else {
+    $('mdBody').innerHTML = '<div class="table-wrap"><table class="tbl"><thead><tr><th>PKJ</th><th>RT</th><th class="num">Bidang</th><th class="num">Luas</th><th>Progres</th><th>Tahapan</th><th>No TT</th><th>No PBT</th><th>No GU</th></tr></thead><tbody>' +
+      d.pkj.map(function (p) {
+        return '<tr><td><b>' + esc(p.pkj) + '</b></td><td>' + esc(p.rt) + '</td><td class="num">' + fmt(p.bidang) + '</td><td class="num">' + ha(p.luas) + '</td>' +
+          '<td style="min-width:110px"><div class="d-flex align-items-center gap-2"><div class="pb flex-grow-1"><i style="width:' + Math.round(p.progres * 100) + '%"></i></div>' + pct(p.progres) + '</div></td>' +
+          '<td><span class="td-tahap">' + TAHAP.map(function (t) { var s = st(p, t[0]); return '<span class="' + (s === 2 ? 'ok' : s === 1 ? 'part' : '') + '" title="' + t[1] + ': ' + (s === 2 ? 'selesai' : s === 1 ? 'sebagian' : 'belum') + '"></span>'; }).join('') + '</span></td>' +
+          '<td>' + (esc(p.noTT) || '<span class="redup">–</span>') + '</td><td>' + (esc(p.noPBT) || '<span class="redup">–</span>') + '</td><td>' + (esc(p.noGU) || '<span class="redup">–</span>') + '</td></tr>';
+      }).join('') + '</tbody></table></div>' +
+      '<div class="redup mt-3" style="font-size:13.5px">Urutan kotak tahapan: ' + TAHAP.map(function (t) { return t[1]; }).join(', ') + '.</div>';
+  }
+  modalDesa = modalDesa || new bootstrap.Modal($('mDesa'));
+  modalDesa.show();
+}
+
+/* ---------- data, tema, online ---------- */
+function muat() {
+  $('btnMuat').disabled = true;
+  fetch(API + '?data=1&t=' + Date.now()).then(function (r) { return r.json(); })
+    .then(function (j) { DATA = j; $('btnMuat').disabled = false; render(); })
+    .catch(function (e) {
+      $('btnMuat').disabled = false;
+      if (!DATA) $('view').innerHTML = '<div class="kosong">Data belum bisa dimuat. Periksa koneksi internet, lalu tekan Muat ulang.</div>';
+    });
+}
+function setTema(t) {
+  document.documentElement.setAttribute('data-bs-theme', t);
+  $('btnTema').innerHTML = '<i class="bi ' + (t === 'dark' ? 'bi-sun' : 'bi-moon') + '"></i>';
+  try { localStorage.setItem('temaPTSL', t); } catch (e) {}
+}
+var SID = Math.random().toString(36).slice(2) + Date.now().toString(36);
+var NAMA = ''; try { NAMA = localStorage.getItem('namaOnline') || ''; } catch (e) {}
+var ONLINE = [];
+function tampilNama() {
+  $('namaSaya').textContent = NAMA || 'Tamu';
+  $('ava').textContent = (NAMA || 'T').trim().charAt(0).toUpperCase();
+}
+function ping() {
+  fetch(API + '?ping=1&id=' + encodeURIComponent(SID) + '&nama=' + encodeURIComponent(NAMA || 'Tamu'))
+    .then(function (r) { return r.json(); })
+    .then(function (j) { ONLINE = j; $('onlineN').textContent = ONLINE.length || 1; daftarOnline(); })
+    .catch(function () {});
+}
+function daftarOnline() {
+  $('olist').innerHTML = '<h6 class="dropdown-header">Sedang membuka halaman ini</h6>' + (ONLINE.length ? ONLINE : [{ id: SID, nama: NAMA || 'Tamu' }]).map(function (o) {
+    return '<span class="dropdown-item-text"><i class="bi bi-circle-fill me-2" style="color:var(--hijau);font-size:9px"></i>' + esc(o.nama) + (o.id === SID ? ' <span class="redup">(Anda)</span>' : '') + '</span>';
+  }).join('') + '<div class="dropdown-divider"></div><button class="dropdown-item" onclick="bukaNama()">Ganti nama saya</button>';
+}
+var modalNama = null;
+function bukaNama() { $('inNama').value = NAMA; modalNama = modalNama || new bootstrap.Modal($('mNama')); modalNama.show(); setTimeout(function () { $('inNama').focus(); }, 300); }
+
+document.querySelectorAll('.side .mi[data-v]').forEach(function (b) { b.onclick = function () { go(b.getAttribute('data-v')); }; });
+$('btnSide').onclick = function () {
+  if (window.innerWidth < 992) document.body.classList.toggle('side-on'); else document.body.classList.toggle('side-off');
+};
+$('backdrop').onclick = function () { document.body.classList.remove('side-on'); };
+$('btnTema').onclick = function () { setTema(document.documentElement.getAttribute('data-bs-theme') === 'dark' ? 'light' : 'dark'); };
+$('btnMuat').onclick = muat;
+$('btnNama').onclick = bukaNama;
+$('simpanNama').onclick = function () {
+  NAMA = $('inNama').value.trim().slice(0, 40);
+  try { localStorage.setItem('namaOnline', NAMA || 'Tamu'); } catch (e) {}
+  tampilNama(); modalNama.hide(); ping();
+};
+$('inNama').onkeydown = function (e) { if (e.key === 'Enter') $('simpanNama').click(); };
+
+try { var tm = localStorage.getItem('temaPTSL'); setTema(tm === 'dark' ? 'dark' : 'light'); } catch (e) { setTema('light'); }
+tampilNama(); daftarOnline(); go('dash');
+muat(); ping();
+setInterval(muat, 5 * 60 * 1000);
+setInterval(function () { if (!document.hidden) ping(); }, 30000);
+if (!NAMA) setTimeout(bukaNama, 800);
+</script>
+</body>
+</html>
