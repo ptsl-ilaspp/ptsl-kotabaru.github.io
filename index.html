@@ -118,7 +118,7 @@ body.side-off .main { margin-left: 0; }
 
 /* jalur tahapan: patok di garis ukur */
 .jalur-wrap { overflow-x: auto; padding-bottom: 4px; }
-.jalur { display: grid; grid-template-columns: repeat(12, minmax(88px, 1fr)); position: relative; min-width: 1056px; }
+.jalur { display: grid; grid-template-columns: repeat(14, minmax(84px, 1fr)); position: relative; min-width: 1176px; }
 .jalur::before { content: ""; position: absolute; left: 4%; right: 4%; top: 49px; border-top: 2px dashed var(--garis); }
 .patok { text-align: center; position: relative; padding: 0 4px; }
 .patok .c { font-size: 24px; font-weight: 700; line-height: 1; }
@@ -263,7 +263,7 @@ var LINKS = [
   ['bi-globe', 'Web mitra BPN (KJSKB)', 'skb.atrbpn.go.id', 'https://skb.atrbpn.go.id']
 ];
 var TAHAP = [
-  ['kirim', 'Kirim Verval'], ['lolos', 'Lolos Verval'], ['pbt', 'PBT'], ['berkas', 'Entry Berkas'], ['gu', 'Berkas ke GU'],
+  ['kirimQC', 'Kirim QC'], ['lolosQC', 'Lolos QC'], ['kirim', 'Kirim Verval'], ['lolos', 'Lolos Verval'], ['pbt', 'PBT'], ['berkas', 'Entry Berkas'], ['gu', 'Berkas ke GU'],
   ['peng', 'Pengumuman'], ['nib', 'Entry NIB'], ['kkp', 'Link KKP'], ['pbtK', 'PBT K'], ['cetakK', 'Cetak PBT K'],
   ['pbtFix', 'PBT Fix'], ['cetakFix', 'Cetak PBT Fix']
 ];
@@ -278,6 +278,8 @@ function $(id) { return document.getElementById(id); }
 function st(p, k) {
   var tanda = function (v) { return v === '✔' ? 2 : (String(v || '').trim() !== '' ? 1 : 0); };
   switch (k) {
+    case 'kirimQC': return p.kirimQC ? 2 : 0;
+    case 'lolosQC': return p.lolosQC ? 2 : 0;
     case 'kirim': return p.kirim ? 2 : 0;
     case 'lolos': return p.lolos ? 2 : 0;
     case 'pbt': var a = String(p.noPBT || '').trim() !== '', b = !!p.pempers; return a && b ? 2 : (a || b ? 1 : 0);
@@ -305,7 +307,9 @@ function tindakLanjut() {
     if (d.pendudukTotal > 0 && d.pendudukIsi === 0) out.push({ lv: 'warn', jenis: 'penduduk', d: d, pkj: '', t: 'Data penduduk belum diisi', s: fmt(d.pendudukTotal) + ' bidang menunggu data penduduk' });
     d.pkj.forEach(function (p) {
       var info = fmt(p.bidang) + ' bidang, ' + ha(p.luas);
-      if (!p.kirim) out.push({ lv: 'info', jenis: 'kirim', d: d, pkj: p.pkj, t: 'Belum Kirim Verval', s: info });
+      if (!p.kirim && !p.kirimQC) out.push({ lv: 'info', jenis: 'qc', d: d, pkj: p.pkj, t: 'Belum Kirim QC', s: info });
+      else if (!p.kirim && !p.lolosQC) out.push({ lv: 'warn', jenis: 'qc', d: d, pkj: p.pkj, t: 'Menunggu Lolos QC', s: info });
+      else if (!p.kirim) out.push({ lv: 'info', jenis: 'kirim', d: d, pkj: p.pkj, t: 'Lolos QC, belum Kirim Verval', s: info });
       else if (!p.lolos) out.push({ lv: 'warn', jenis: 'lolos', d: d, pkj: p.pkj, t: 'Menunggu Lolos Verval', s: info });
       else if (st(p, 'pbt') < 2) {
         var kurang = [];
@@ -462,7 +466,7 @@ function viewDesa() {
 /* ---------- tindak lanjut ---------- */
 function viewTindak(tl) {
   $('judul').textContent = 'Perlu tindak lanjut'; bc([['Perlu tindak lanjut']]);
-  var jenis = [['semua', 'Semua'], ['pbt', 'PBT belum lengkap'], ['lolos', 'Menunggu Lolos Verval'], ['kirim', 'Belum Kirim Verval'], ['penduduk', 'Data penduduk kosong']];
+  var jenis = [['semua', 'Semua'], ['pbt', 'PBT belum lengkap'], ['lolos', 'Menunggu Lolos Verval'], ['kirim', 'Belum Kirim Verval'], ['qc', 'Proses QC'], ['penduduk', 'Data penduduk kosong']];
   var hit = function (j) { return j === 'semua' ? tl.length : tl.filter(function (x) { return x.jenis === j; }).length; };
   var list = tl.filter(function (x) { return TLF === 'semua' || x.jenis === TLF; });
   $('view').innerHTML = kartu('Daftar tindak lanjut', 'Klik untuk membuka detail desa',
