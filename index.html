@@ -376,7 +376,11 @@ function jalur(list) {
   var a = semuaPkj(list), n = a.length;
   return '<div class="jalur-wrap"><div class="jalur">' + TAHAP.map(function (t) {
     var ok = 0, part = 0, bid = 0, lu = 0;
-    a.forEach(function (x) { var s = st(x.p, t[0]); if (s === 2) { ok++; bid += x.p.bidang; lu += x.p.luas; } else if (s === 1) part++; });
+    a.forEach(function (x) {
+      var s = st(x.p, t[0]);
+      if (s === 2) { ok++; bid += x.p.bidang; if (t[0] !== 'kkp') lu += x.p.luas; } else if (s === 1) part++;
+      if (t[0] === 'kkp') lu += x.p.luasKkp || 0; // luas bidang yang sudah STATUS KKP (termasuk PKJ sebagian)
+    });
     var cls = n && ok === n ? 'full' : (ok || part ? 'part' : '');
     return '<div class="patok ' + cls + '" title="' + t[1] + ': ' + ok + ' dari ' + n + ' PKJ selesai' + (part ? ', ' + part + ' sebagian' : '') + '">' +
       '<div class="c">' + ok + '<small>/' + n + '</small></div><div class="t"></div><div class="n">' + t[1] + '</div>' +
